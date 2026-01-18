@@ -10,18 +10,6 @@ data_sources:
     timeout: 30
     retry_attempts: 3
 
-  postgres:
-    type: database
-    description: "SLO definitions, alerts, incidents, and change history"
-    capabilities:
-      - slo_definitions
-      - alert_history
-      - incident_tracking
-      - change_log
-      - configuration_history
-    pool_size: 10
-    connection_timeout: 10
-
   clickhouse:
     type: analytical_database
     description: "Historical data, trends, patterns, and AI memory"
@@ -32,28 +20,23 @@ data_sources:
       - ai_insights
       - similarity_search
       - incident_memory
-    pool_size: 5
-    compression: true
-
-  opensearch:
-    type: search_engine
-    description: "Logs, traces, and full-text search"
-    capabilities:
+      - slo_definitions
+      - alert_history
+      - incident_tracking
+      - change_log
+      - configuration_history
       - log_search
       - trace_analysis
       - error_patterns
       - audit_trail
-    index_patterns:
-      - logs-*
-      - traces-*
-      - audit-*
-    timeout: 60
+    pool_size: 5
+    compression: true
 
 # Intent to data source mapping
 intent_data_sources:
   STATE:
     - java_stats_api
-    - postgres
+    - clickhouse
 
   TREND:
     - java_stats_api
@@ -64,8 +47,6 @@ intent_data_sources:
 
   CAUSE:
     - java_stats_api
-    - opensearch
-    - postgres
     - clickhouse
 
   IMPACT:
@@ -74,7 +55,6 @@ intent_data_sources:
 
   ACTION:
     - clickhouse
-    - postgres
 
   PREDICT:
     - clickhouse
@@ -82,10 +62,7 @@ intent_data_sources:
 
   OPTIMIZE:
     - java_stats_api
-    - opensearch
-    - postgres
+    - clickhouse
 
   EVIDENCE:
-    - opensearch
-    - postgres
     - clickhouse

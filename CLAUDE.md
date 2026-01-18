@@ -4,7 +4,34 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is an intent classification system for a Conversational SLO Manager. It maps natural language queries to specific intents and determines which data sources should be queried to answer them. The system is configuration-driven using YAML files and uses AWS Bedrock (Claude 3.5) for intelligent intent classification.
+This is an intent classification system for a Conversational SLO Manager. It maps natural language queries to specific intents and determines which data sources should be queried to answer them. The system is configuration-driven using YAML files and uses AWS Bedrock (Claude 3.5 Sonnet) for intelligent intent classification.
+
+## Common Commands
+
+**Initial Setup**:
+```bash
+./setup.sh                    # Create venv and install dependencies
+source venv/bin/activate      # Activate virtual environment
+cp .env.example .env          # Create environment file (then edit with AWS credentials)
+```
+
+**Running the Classifier**:
+```bash
+python intent_classifier.py  # Interactive mode - enter queries one by one
+python test_classifier.py    # Run automated test suite with 20+ predefined queries
+```
+
+**Development**:
+```bash
+# Activate virtual environment (must run before any python commands)
+source venv/bin/activate
+
+# Install/update dependencies
+pip install -r requirements.txt
+
+# Test AWS connectivity
+python -c "import boto3; print(boto3.client('bedrock-runtime', region_name='us-east-1').meta.region_name)"
+```
 
 ## Architecture
 
@@ -82,11 +109,11 @@ This is an intent classification system for a Conversational SLO Manager. It map
 
 ### Python Intent Classifier (`intent_classifier.py`)
 
-**Main Class**: `IntentClassifier`
+**Main Class**: `IntentClassifier` (intent_classifier.py:16)
 - Loads YAML configurations at initialization
 - Builds intent-to-data-source mapping from configuration
 - Uses AWS Bedrock runtime client for LLM inference
-- Temperature set to 0.0 for deterministic classification
+- Temperature set to 0.0 for deterministic, consistent classification (no randomness in intent detection)
 
 **Classification Flow**:
 1. `classify(user_query)` → Calls AWS Bedrock with system prompt
@@ -96,9 +123,9 @@ This is an intent classification system for a Conversational SLO Manager. It map
 5. Returns complete classification result with enrichment details
 
 **Key Methods**:
-- `_call_bedrock()`: Handles AWS Bedrock API calls, JSON parsing, and error handling
-- `_build_system_prompt()`: Generates LLM prompt from intent_categories.yaml
-- `print_result()`: Pretty-prints classification results with emoji indicators
+- `_call_bedrock()` (intent_classifier.py:104): Handles AWS Bedrock API calls, JSON parsing, and error handling. Extracts JSON array from LLM response even if wrapped in extra text.
+- `_build_system_prompt()` (intent_classifier.py:72): Generates LLM prompt from intent_categories.yaml with all intents, examples, and formatting instructions
+- `print_result()` (intent_classifier.py:227): Pretty-prints classification results with emoji indicators and data source descriptions
 
 ### Setup and Testing
 
@@ -113,7 +140,35 @@ This is an intent classification system for a Conversational SLO Manager. It map
 - Interactive mode: `python intent_classifier.py`
 - Automated tests: `python test_classifier.py` (runs 20+ example queries)
 
-**Dependencies**:
-- `boto3`: AWS SDK for Bedrock
-- `pyyaml`: YAML configuration parsing
-- `python-dotenv`: Environment variable management
+**Dependencies** (requirements.txt):
+- `boto3>=1.34.0`: AWS SDK for Bedrock API calls
+- `pyyaml>=6.0.1`: YAML configuration parsing
+- `python-dotenv>=1.0.0`: Environment variable management
+
+## Troubleshooting
+
+**"NoCredentialsError: Unable to locate credentials"**
+- Ensure `.env` file exists and contains valid AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
+- Check that you've run `load_dotenv()` or the credentials are in environment variables
+
+**"AccessDeniedException: User is not authorized to perform: bedrock:InvokeModel"**
+- Go to AWS Console → Bedrock → Model Access
+- Request access to Anthropic Claude models (usually instant approval)
+- Verify your AWS credentials have bedrock:InvokeModel permissions
+
+**"JSON Parsing Error"**
+- The LLM returned unexpected format (check error message for raw response)
+- This is rare with temperature=0.0, but can happen if prompt needs refinement
+- The code attempts to extract JSON array even from text-wrapped responses
+
+**ImportError or ModuleNotFoundError**
+- Activate virtual environment: `source venv/bin/activate`
+- Reinstall dependencies: `pip install -r requirements.txt`
+
+## Additional Documentation
+
+For deep technical understanding of the implementation, see `Understanding_Readme.md` which provides:
+- Line-by-line code explanation
+- Detailed flow diagrams
+- Error handling strategies
+- Design pattern rationale

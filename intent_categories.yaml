@@ -9,7 +9,7 @@ STATE:
         - "Application status?"
       data_sources:
         - java_stats_api
-        - postgres
+        - clickhouse
 
     SERVICE_HEALTH:
       description: "Individual service health check"
@@ -27,7 +27,7 @@ STATE:
         - "Are we meeting our SLOs?"
         - "SLO compliance status?"
       data_sources:
-        - postgres
+        - clickhouse
 
     ALERT_STATUS:
       description: "Active alerts information"
@@ -36,7 +36,7 @@ STATE:
         - "Show me current alerts"
         - "Any active warnings?"
       data_sources:
-        - postgres
+        - clickhouse
 
     INCIDENT_STATUS:
       description: "Open incidents tracking"
@@ -45,7 +45,7 @@ STATE:
         - "Show active incidents"
         - "Current incident status?"
       data_sources:
-        - postgres
+        - clickhouse
 
 TREND:
   description: "How things are changing - Drift, degradation, improvement"
@@ -86,7 +86,6 @@ TREND:
         - "Error budget burn rate"
         - "SLO budget consumption trend"
       data_sources:
-        - postgres
         - clickhouse
 
 PATTERN:
@@ -130,7 +129,6 @@ CAUSE:
         - "Root cause of login issues"
       data_sources:
         - java_stats_api
-        - opensearch
         - clickhouse
 
     ROOT_CAUSE_MULTI:
@@ -141,7 +139,6 @@ CAUSE:
         - "Common root cause analysis"
       data_sources:
         - java_stats_api
-        - opensearch
         - clickhouse
 
     ALERT_DEBUG:
@@ -151,8 +148,7 @@ CAUSE:
         - "Alert trigger reason"
         - "What caused this notification?"
       data_sources:
-        - postgres
-        - opensearch
+        - clickhouse
 
     CONFIG_DRIFT_CAUSE:
       description: "Configuration change impact analysis"
@@ -161,7 +157,6 @@ CAUSE:
         - "Impact of configuration update"
         - "Config drift analysis"
       data_sources:
-        - postgres
         - clickhouse
 
 IMPACT:
@@ -236,7 +231,6 @@ ACTION:
         - "Rollback recommendation"
       data_sources:
         - clickhouse
-        - postgres
 
     PREVENTIVE_ACTION:
       description: "Future prevention strategies"
@@ -291,7 +285,7 @@ OPTIMIZE:
         - "Slow component analysis"
       data_sources:
         - java_stats_api
-        - opensearch
+        - clickhouse
 
     QUERY_OPTIMIZATION:
       description: "Database query optimization"
@@ -300,8 +294,7 @@ OPTIMIZE:
         - "Expensive query analysis"
         - "Query performance issues"
       data_sources:
-        - opensearch
-        - postgres
+        - clickhouse
 
     RESOURCE_WASTE:
       description: "Resource over-provisioning detection"
@@ -322,7 +315,6 @@ EVIDENCE:
         - "Proof of root cause"
         - "Supporting data"
       data_sources:
-        - opensearch
         - clickhouse
 
     INCIDENT_TIMELINE:
@@ -332,8 +324,7 @@ EVIDENCE:
         - "Incident timeline"
         - "Sequence of events"
       data_sources:
-        - opensearch
-        - postgres
+        - clickhouse
 
     CHANGE_AUDIT:
       description: "Change tracking and audit trail"
@@ -342,5 +333,4 @@ EVIDENCE:
         - "Change audit log"
         - "Configuration change history"
       data_sources:
-        - postgres
-        - opensearch
+        - clickhouse

@@ -168,7 +168,7 @@ Examples:
 
         return enriched_intents
 
-    def _get_data_sources(self, intents: Set[str]) -> List[str]:
+    def _get_data_sources(self, intents: Set[str]):
         """Get all required data sources for the intents"""
         data_sources = set()
 
@@ -176,7 +176,10 @@ Examples:
             if intent in self.intent_to_data_sources:
                 data_sources.update(self.intent_to_data_sources[intent])
 
-        return sorted(list(data_sources))
+        if data_sources:
+            return sorted(list(data_sources))
+        else:
+            return "No relevant Data Source available"
 
     def classify(self, user_query: str) -> Dict[str, Any]:
         """
@@ -249,11 +252,15 @@ Examples:
             print(f"   {marker} {intent}")
 
         print(f"\n💾 Data Sources Required:")
-        for ds in result['data_sources']:
-            # Get description from config
-            ds_info = self.data_sources_config.get('data_sources', {}).get(ds, {})
-            description = ds_info.get('description', 'No description')
-            print(f"   • {ds}: {description}")
+        if isinstance(result['data_sources'], str):
+            # It's the "No relevant Data Source available" message
+            print(f"   {result['data_sources']}")
+        else:
+            for ds in result['data_sources']:
+                # Get description from config
+                ds_info = self.data_sources_config.get('data_sources', {}).get(ds, {})
+                description = ds_info.get('description', 'No description')
+                print(f"   • {ds}: {description}")
 
         print("\n" + "="*80 + "\n")
 
